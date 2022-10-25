@@ -10,6 +10,7 @@ public class MappingProfile : Profile
 	{
 		// Domain to API Resource
 		CreateMap<City, CityResource>();
+		CreateMap<City, CityResource>();
         CreateMap<PhoneNumber, PhoneNumberResource>();
         CreateMap<PhysicalPerson, PhysicalPersonResource>()
 			.ForMember(ppr => ppr.City, opt => opt.MapFrom(pp => new CityResource { Id = pp.City.Id, Name = pp.City.Name }))
@@ -37,6 +38,7 @@ public class MappingProfile : Profile
 			);
 
 		// API resource to Domain
+		CreateMap<PhysicalPersonQueryResource, PhysicalPersonQuery>();
 		CreateMap<SavePhysicalPersonResource, PhysicalPerson>()
 			.ForMember(pp => pp.Id, opt => opt.Ignore())
 			.ForMember(pp => pp.PhoneNumbers, opt => opt.Ignore())

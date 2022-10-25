@@ -1,6 +1,8 @@
 ﻿using Api.Core;
 using Api.Core.Models;
+using Api.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Api.Persistence;
 
@@ -36,9 +38,23 @@ public class PhysicalPersonRepository : IPhysicalPersonRepository
             .SingleOrDefaultAsync(pp => pp.Id == id);
     }
 
-    public void GetPhysicalPersons()
+    public async Task<IEnumerable<PhysicalPerson>> GetPhysicalPersons(PhysicalPersonQuery queryObj)
     {
-        throw new NotImplementedException();
+        Expression<Func<PhysicalPerson, bool>> predicate = pp =>
+            pp.Name.Contains(queryObj.Name ?? "") &&
+            pp.LastName.Contains(queryObj.LastName ?? "") &&
+            pp.PersonalNumber.Contains(queryObj.PersonalNumber ?? "");
+
+        var query = await context.PhysicalPersons
+            .Include(pp => pp.PhysicalPersonRelations)
+                .ThenInclude(ppr => ppr.Related)
+            .Include(pp => pp.PhoneNumbers)
+            .Include(pp => pp.City)
+            .Where(predicate)
+            .ApplyPaging(queryObj)
+            .ToListAsync();
+
+        return query;
     }
 
     public void RemovePhysicalPerson(PhysicalPerson physicalPerson)

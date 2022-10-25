@@ -36,6 +36,16 @@ public class PhysicalPersonController : Controller
     }
 
 
+    [HttpGet]
+    public async Task<IEnumerable<PhysicalPersonResource>> GetPhysicalPersons(PhysicalPersonQueryResource filterResource)
+    {
+        var filter = mapper.Map<PhysicalPersonQueryResource, PhysicalPersonQuery>(filterResource);
+        var queryResult = await repository.GetPhysicalPersons(filter);
+
+        return mapper.Map<IEnumerable<PhysicalPerson>, IEnumerable<PhysicalPersonResource>>(queryResult);
+    }
+
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPhysicalPerson(int id)
     {
@@ -96,6 +106,20 @@ public class PhysicalPersonController : Controller
         await unitOfWork.Complete();
 
         return Ok(id);
+    }
+
+
+    [HttpGet("[action]")]
+    public async Task<IActionResult> GetRelationCount(int masterId, Relation relation)
+    {
+        var physicalPerson = await repository.GetPhysicalPerson(masterId);
+
+        if (physicalPerson == null)
+            return NotFound();
+
+        var count = physicalPerson.PhysicalPersonRelations.Where(ppr => ppr.Relation == relation).Count();
+
+        return Ok(count);
     }
 
 

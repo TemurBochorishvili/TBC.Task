@@ -10,7 +10,7 @@ public interface IPhysicalPersonRepository
 
     Task<PhysicalPerson> GetPhysicalPerson(int id, bool includeRelated = true);
 
-    void GetPhysicalPersons();
+    Task<IEnumerable<PhysicalPerson>> GetPhysicalPersons(PhysicalPersonQuery queryObj);
 
     void CountRelatedPhysicalPersonsByRelationType();
 }
