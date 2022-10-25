@@ -21,8 +21,6 @@ namespace Api.Controllers.Resources
 
         public ICollection<PhoneNumberResource> PhoneNumbers { get; set; }
 
-        public string PictureRelativePath { get; set; }
-
 
         public SavePhysicalPersonResource()
         {

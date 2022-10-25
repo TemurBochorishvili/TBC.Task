@@ -56,10 +56,29 @@ public class PhysicalPersonController : Controller
     }
 
 
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdatePhysicalPerson(int id, [FromBody] SavePhysicalPersonResource physicalPersonResource)
+    {
+        var physicalPerson = await repository.GetPhysicalPerson(id);
+
+        if (physicalPerson == null)
+            return NotFound();
+
+        mapper.Map(physicalPersonResource, physicalPerson);
+
+        await unitOfWork.Complete();
+
+        physicalPerson = await repository.GetPhysicalPerson(physicalPerson.Id);
+        var vechileResource = mapper.Map<PhysicalPerson, SavePhysicalPersonResource>(physicalPerson);
+
+        return Ok(vechileResource);
+    }
+
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePhysicalPerson(int id)
     {
-        var physicalPerson = await repository.GetPhysicalPerson(id);
+        var physicalPerson = await repository.GetPhysicalPerson(id, includeRelated: false);
 
         if (physicalPerson == null)
             return NotFound();

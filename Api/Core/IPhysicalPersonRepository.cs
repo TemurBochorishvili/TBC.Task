@@ -6,8 +6,6 @@ public interface IPhysicalPersonRepository
 {
     Task CreatePhysicalPerson(PhysicalPerson physicalPerson);
 
-    void ModifyPhysicalPerson();
-
     void UploadPhysicalPersonPhoto();
 
     void AddPhysicalPersonRelation();
@@ -16,7 +14,7 @@ public interface IPhysicalPersonRepository
 
     void RemovePhysicalPerson(PhysicalPerson physicalPerson);
 
-    Task<PhysicalPerson> GetPhysicalPerson(int id);
+    Task<PhysicalPerson> GetPhysicalPerson(int id, bool includeRelated = true);
 
     void GetPhysicalPersons();
 

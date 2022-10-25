@@ -27,7 +27,7 @@ public class PhysicalPerson
 
     public int CityId { get; set; }
 
-    public string PictureRelativePath { get; set; }
+    public string? PictureRelativePath { get; set; }
 
     public virtual ICollection<PhysicalPersonRelation> PhysicalPersonRelations { get; set; }
 

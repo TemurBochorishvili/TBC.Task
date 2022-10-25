@@ -28,8 +28,11 @@ public class PhysicalPersonRepository : IPhysicalPersonRepository
         await context.PhysicalPersons.AddAsync(physicalPerson);
     }
 
-    public async Task<PhysicalPerson> GetPhysicalPerson(int id)
+    public async Task<PhysicalPerson> GetPhysicalPerson(int id, bool includeRelated = true)
     {
+        if (!includeRelated)
+            return await context.PhysicalPersons.FindAsync(id);
+
         return await context.PhysicalPersons
             .Include(pp => pp.PhysicalPersonRelations)
                 .ThenInclude(ppr => ppr.Related)
@@ -39,11 +42,6 @@ public class PhysicalPersonRepository : IPhysicalPersonRepository
     }
 
     public void GetPhysicalPersons()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void ModifyPhysicalPerson()
     {
         throw new NotImplementedException();
     }

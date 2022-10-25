@@ -34,7 +34,7 @@ namespace Api.Migrations
                     PersonalNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false),
-                    PictureRelativePath = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PictureRelativePath = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
