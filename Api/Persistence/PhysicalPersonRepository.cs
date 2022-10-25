@@ -13,11 +13,6 @@ public class PhysicalPersonRepository : IPhysicalPersonRepository
         this.context = context;
     }
 
-    public void AddPhysicalPersonRelation()
-    {
-        throw new NotImplementedException();
-    }
-
     public void CountRelatedPhysicalPersonsByRelationType()
     {
         throw new NotImplementedException();
@@ -51,13 +46,4 @@ public class PhysicalPersonRepository : IPhysicalPersonRepository
         context.Remove(physicalPerson);
     }
 
-    public void RemovePhysicalPersonRelation()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void UploadPhysicalPersonPhoto()
-    {
-        throw new NotImplementedException();
-    }
 }

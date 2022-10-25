@@ -5,6 +5,7 @@ using Api.Persistence;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Api.Controllers;
 
@@ -18,12 +19,20 @@ public class PhysicalPersonController : Controller
 
     private readonly IUnitOfWork unitOfWork;
 
+    private readonly IWebHostEnvironment host;
 
-    public PhysicalPersonController(IMapper mapper, IPhysicalPersonRepository repository, IUnitOfWork unitOfWork)
+
+    public PhysicalPersonController(
+        IMapper mapper,
+        IPhysicalPersonRepository repository,
+        IUnitOfWork unitOfWork,
+        IWebHostEnvironment host
+    )
     {
         this.mapper = mapper;
         this.repository = repository;
         this.unitOfWork = unitOfWork;
+        this.host = host;
     }
 
 
@@ -87,5 +96,82 @@ public class PhysicalPersonController : Controller
         await unitOfWork.Complete();
 
         return Ok(id);
+    }
+
+
+    [HttpPost("related-physical-person")]
+    public async Task<IActionResult> AddRelatedPhysicalPerson(int masterId, int relatedId, Relation relation)
+    {
+        var masterPhysicalPerson = await repository.GetPhysicalPerson(masterId);
+        var relatedPhysicalPerson = await repository.GetPhysicalPerson(relatedId);
+
+        if (masterPhysicalPerson == null || relatedPhysicalPerson == null)
+            return NotFound();
+
+        //TODO dont add master
+        if (!masterPhysicalPerson.PhysicalPersonRelations.Any(mpp => mpp.RelatedId == relatedPhysicalPerson.Id))
+        {
+            masterPhysicalPerson.PhysicalPersonRelations.Add(
+                new PhysicalPersonRelation
+                {
+                    Related = relatedPhysicalPerson,
+                    Relation = relation
+                });
+
+            await unitOfWork.Complete();
+        };
+
+        return NoContent();
+    }
+
+
+    [HttpDelete("related-physical-person")]
+    public async Task<IActionResult> RemoveRelatedPhysicalPerson(int masterId, int relatedId)
+    {
+        var masterPhysicalPerson = await repository.GetPhysicalPerson(masterId);
+        var relatedPhysicalPerson = await repository.GetPhysicalPerson(relatedId);
+
+        if (masterPhysicalPerson == null || relatedPhysicalPerson == null)
+            return NotFound();
+
+        var removableRelation = masterPhysicalPerson.PhysicalPersonRelations
+            .FirstOrDefault(ppr => ppr.RelatedId == relatedPhysicalPerson.Id);
+        masterPhysicalPerson.PhysicalPersonRelations.Remove(removableRelation);
+
+        await unitOfWork.Complete();
+
+        return NoContent();
+    }
+
+
+    [HttpPost("[action]/{physicalPersonId}")]
+    public async Task<IActionResult> UploadPhoto(int physicalPersonId, IFormFile file)
+    {
+        var physicalPerson = await repository.GetPhysicalPerson(physicalPersonId, false);
+
+        if (physicalPerson == null)
+        {
+            return NotFound();
+        }
+
+        if (file == null) return BadRequest("Null file");
+        if (file.Length == 0) return BadRequest("Empty file");
+        // TODO Check for Type
+
+        var uploadsFolderPath = Path.Combine(host.WebRootPath, "uploads");
+        if (!Directory.Exists(uploadsFolderPath))
+            Directory.CreateDirectory(uploadsFolderPath);
+
+        var filePath = Path.Combine(uploadsFolderPath, file.FileName);
+
+        using var stream = new FileStream(filePath, FileMode.Create);
+
+        await file.CopyToAsync(stream);
+
+        physicalPerson.PictureRelativePath = $"uploads/{file.FileName}";
+
+        await unitOfWork.Complete();
+
+        return Ok();
     }
 }
