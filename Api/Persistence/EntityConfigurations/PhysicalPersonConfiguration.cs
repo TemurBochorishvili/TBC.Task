@@ -17,17 +17,17 @@ public class PhysicalPersonConfiguration :
 
         builder.HasKey(x => x.Id);
 
-        builder
-            .HasMany(pp => pp.PhysicalPersonRelations)
-            .WithOne(pp => pp.Master)
-            .HasForeignKey(pp => pp.MasterId)
-            .OnDelete(DeleteBehavior.ClientCascade);
+        //builder
+        //    .HasMany(pp => pp.PhysicalPersonRelations)
+        //    .WithOne(pp => pp.Master)
+        //    .HasForeignKey(pp => pp.MasterId)
+        //    .OnDelete(DeleteBehavior.ClientCascade);
 
-        builder
-            .HasMany(pp => pp.PhysicalPersonRelationsOf)
-            .WithOne(pp => pp.Related)
-            .HasForeignKey(pp => pp.RelatedId)
-            .OnDelete(DeleteBehavior.ClientCascade);
+        //builder
+        //    .HasMany(pp => pp.PhysicalPersonRelationsOf)
+        //    .WithOne(pp => pp.Related)
+        //    .HasForeignKey(pp => pp.RelatedId)
+        //    .OnDelete(DeleteBehavior.ClientCascade);
 
 
         builder.HasData(
@@ -72,6 +72,18 @@ public class PhysicalPersonConfiguration :
         builder.ToTable("PhysicalPersonRelations");
 
         builder.HasKey(ppr => new { ppr.MasterId, ppr.RelatedId });
+
+        builder
+            .HasOne(ppr => ppr.Master)
+            .WithMany(pp => pp.PhysicalPersonRelations)
+            .HasForeignKey(ppr => ppr.MasterId)
+            .OnDelete(DeleteBehavior.ClientCascade);
+
+        builder
+            .HasOne(ppr => ppr.Related)
+            .WithMany(pp => pp.PhysicalPersonRelationsOf)
+            .HasForeignKey(ppr => ppr.RelatedId)
+            .OnDelete(DeleteBehavior.ClientCascade);
 
         builder.HasData(
             new PhysicalPersonRelation { MasterId = 1, RelatedId = 2, Relation = Relation.Relative },
