@@ -15,17 +15,12 @@ public class PhysicalPersonRepository : IPhysicalPersonRepository
         this.context = context;
     }
 
-    public void CountRelatedPhysicalPersonsByRelationType()
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task CreatePhysicalPerson(PhysicalPerson physicalPerson)
     {
         await context.PhysicalPersons.AddAsync(physicalPerson);
     }
 
-    public async Task<PhysicalPerson> GetPhysicalPerson(int id, bool includeRelated = true)
+    public async Task<PhysicalPerson?> GetPhysicalPerson(int id, bool includeRelated = true)
     {
         if (!includeRelated)
             return await context.PhysicalPersons.FindAsync(id);

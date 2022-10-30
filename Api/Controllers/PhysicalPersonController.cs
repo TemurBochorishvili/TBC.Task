@@ -1,11 +1,12 @@
-﻿using Api.Controllers.Resources;
+﻿using Api.ActionFilters;
+using Api.Controllers.Resources;
 using Api.Core;
 using Api.Core.Models;
-using Api.Persistence;
+using Api.Helpers;
+using Api.Resources;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Localization;
 
 namespace Api.Controllers;
 
@@ -35,7 +36,6 @@ public class PhysicalPersonController : Controller
         this.host = host;
     }
 
-
     [HttpGet]
     public async Task<IEnumerable<PhysicalPersonResource>> GetPhysicalPersons(PhysicalPersonQueryResource filterResource)
     {
@@ -61,6 +61,7 @@ public class PhysicalPersonController : Controller
 
 
     [HttpPost]
+    [ValidationFilter]
     public async Task<IActionResult> CreatePhysicalPerson([FromBody] SavePhysicalPersonResource physicalPersonResource)
     {
         var physicalPerson = mapper.Map<SavePhysicalPersonResource, PhysicalPerson>(physicalPersonResource);
@@ -81,7 +82,7 @@ public class PhysicalPersonController : Controller
         var physicalPerson = await repository.GetPhysicalPerson(id);
 
         if (physicalPerson == null)
-            return NotFound();
+            throw new KeyNotFoundException($"{id}");
 
         mapper.Map(physicalPersonResource, physicalPerson);
 
@@ -100,7 +101,7 @@ public class PhysicalPersonController : Controller
         var physicalPerson = await repository.GetPhysicalPerson(id, includeRelated: false);
 
         if (physicalPerson == null)
-            return NotFound();
+            throw new KeyNotFoundException($"{id}");
 
         repository.RemovePhysicalPerson(physicalPerson);
         await unitOfWork.Complete();
@@ -115,7 +116,7 @@ public class PhysicalPersonController : Controller
         var physicalPerson = await repository.GetPhysicalPerson(masterId);
 
         if (physicalPerson == null)
-            return NotFound();
+            throw new KeyNotFoundException($"{masterId}");
 
         var count = physicalPerson.PhysicalPersonRelations.Where(ppr => ppr.Relation == relation).Count();
 
@@ -123,7 +124,7 @@ public class PhysicalPersonController : Controller
     }
 
 
-    [HttpPost("related-physical-person")]
+    [HttpPost("[action]")]
     public async Task<IActionResult> AddRelatedPhysicalPerson(int masterId, int relatedId, Relation relation)
     {
         var masterPhysicalPerson = await repository.GetPhysicalPerson(masterId);
@@ -132,7 +133,6 @@ public class PhysicalPersonController : Controller
         if (masterPhysicalPerson == null || relatedPhysicalPerson == null)
             return NotFound();
 
-        //TODO dont add master
         if (!masterPhysicalPerson.PhysicalPersonRelations.Any(mpp => mpp.RelatedId == relatedPhysicalPerson.Id))
         {
             masterPhysicalPerson.PhysicalPersonRelations.Add(
@@ -149,7 +149,7 @@ public class PhysicalPersonController : Controller
     }
 
 
-    [HttpDelete("related-physical-person")]
+    [HttpDelete("[action]")]
     public async Task<IActionResult> RemoveRelatedPhysicalPerson(int masterId, int relatedId)
     {
         var masterPhysicalPerson = await repository.GetPhysicalPerson(masterId);
@@ -180,7 +180,6 @@ public class PhysicalPersonController : Controller
 
         if (file == null) return BadRequest("Null file");
         if (file.Length == 0) return BadRequest("Empty file");
-        // TODO Check for Type
 
         var uploadsFolderPath = Path.Combine(host.WebRootPath, "uploads");
         if (!Directory.Exists(uploadsFolderPath))

@@ -1,8 +1,6 @@
 ﻿using Api.Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection.Emit;
-using System.Reflection.Metadata;
 
 namespace Api.Persistence.EntityConfigurations;
 
@@ -16,19 +14,6 @@ public class PhysicalPersonConfiguration :
         builder.ToTable("PhysicalPersons");
 
         builder.HasKey(x => x.Id);
-
-        //builder
-        //    .HasMany(pp => pp.PhysicalPersonRelations)
-        //    .WithOne(pp => pp.Master)
-        //    .HasForeignKey(pp => pp.MasterId)
-        //    .OnDelete(DeleteBehavior.ClientCascade);
-
-        //builder
-        //    .HasMany(pp => pp.PhysicalPersonRelationsOf)
-        //    .WithOne(pp => pp.Related)
-        //    .HasForeignKey(pp => pp.RelatedId)
-        //    .OnDelete(DeleteBehavior.ClientCascade);
-
 
         builder.HasData(
             new PhysicalPerson

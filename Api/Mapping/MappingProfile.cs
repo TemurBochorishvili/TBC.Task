@@ -44,7 +44,6 @@ public class MappingProfile : Profile
 			.ForMember(pp => pp.PhoneNumbers, opt => opt.Ignore())
             .AfterMap((sppr, v) =>
             {
-                //Remove unselected features
                 v.PhoneNumbers
                     .Where(f => !sppr.PhoneNumbers.Any(i => (i.Number == f.Number) && (i.Type == f.Type)))
                     .ToList()
@@ -56,6 +55,5 @@ public class MappingProfile : Profile
                     .ToList()
                     .ForEach(pn => v.PhoneNumbers.Add(pn));
             });
-
     }
 }

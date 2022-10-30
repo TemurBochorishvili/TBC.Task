@@ -11,6 +11,4 @@ public interface IPhysicalPersonRepository
     Task<PhysicalPerson> GetPhysicalPerson(int id, bool includeRelated = true);
 
     Task<IEnumerable<PhysicalPerson>> GetPhysicalPersons(PhysicalPersonQuery queryObj);
-
-    void CountRelatedPhysicalPersonsByRelationType();
 }
